@@ -3,25 +3,21 @@
         shadow="always"
         :style="{width: '500px'}"
     >
-        Login
     <el-form 
     :model="controls" 
     :rules="rules" 
     ref="form"
     @submit.native.prevent="onSubmit"
     >
-    <h1>Добавить коментарий</h1>
-  <el-form-item label="Ваше имя" prop="name">
-    <el-input v-model.trim="controls.name" />
+    <h2>Войти в панель администратора</h2>
+  <el-form-item label="Логин" prop="login">
+    <el-input v-model.trim="controls.login" />
   </el-form-item>
-   <el-form-item label="Текст коментария" prop="text">
-    <el-input 
-    type="textarea"
-    v-model.trim="controls.text"
-    resize="none"
-    :rows="2"
-    />
-  </el-form-item>
+        <div class="mb2">
+           <el-form-item label="Пароль" prop="password" >
+            <el-input v-model.trim="controls.password" type="password" />
+          </el-form-item>
+        </div>
   
   <el-form-item>
     <el-button 
@@ -30,7 +26,7 @@
     native-type="submit"
     :loading="loading"
     >
-    Добавить коментарий
+    Войти
     </el-button>
   </el-form-item>
 </el-form>
@@ -41,21 +37,45 @@ export default {
     layout: 'empty',
     data() {
         return {
+            loading: false,
              controls: {
-                    name: '',
-                    text: ''
+                    login: '',
+                    password: ''
                 },
-                 rules: {
-        name: [
-            { required: true, message: 'Имя не должно быть пустым', trigger: 'blur' }
+            rules: {
+                    login: [
+                            { required: true, message: 'Введите логин', trigger: 'blur' }
           ],
-        text: [
-            { required: true, message: 'Введите ваш коментарий', trigger: 'blur' }
+                     password: [
+                            { required: true, message: 'Введите пароль', trigger: 'blur' },
+                            {min:6, message: 'Пароль должен быть не менее 6 символов', trigger: 'blur'}
           ]
         }
     }
 
+        },
+    methods: {
+        onSubmit() {
+            this.$refs.form.validate(async valid => {
+                if(valid) {
+
+                    this.loading=true
+
+                    try {
+                        const formData = {
+                            login: this.controls.login,
+                            password: this.controls.password
+                        }
+
+                        await this.$store.dispatch('auth/login', formData)
+                        this.$router.push('/admin')
+                    } catch (e) {
+                        this.loading = false
+                    }
+                }
+            })
         }
+    }
     }
 
 </script>
